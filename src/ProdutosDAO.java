@@ -1,5 +1,4 @@
 
-
 import java.sql.PreparedStatement;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
@@ -7,46 +6,49 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
-
 public class ProdutosDAO {
-    
+
     Connection conn;
     PreparedStatement prep;
     ResultSet resultset;
     ArrayList<ProdutosDTO> listagem = new ArrayList<>();
-    
-    public boolean cadastrarProduto (ProdutosDTO produto){
+
+    public boolean cadastrarProduto(ProdutosDTO produto) {
         conectaDAO conecta = new conectaDAO();
         Connection conn = conecta.connectDB();
         PreparedStatement prep = null;
         int status;
-        try{
+        try {
             String sql = "INSERT INTO produtos (nome, valor, status) VALUES (?,?,?);";
             prep = conn.prepareStatement(sql);
             prep.setString(1, produto.getNome());
             prep.setInt(2, produto.getValor());
             prep.setString(3, produto.getStatus());
-     
+
             status = prep.executeUpdate();
             return status > 0;
-        } catch(SQLException ex){
-            System.out.println("Erro ao conectar: "+ ex.getMessage());
-            System.out.println("Erro na sintaxe: "+ ex.getErrorCode());
-            
+        } catch (SQLException ex) {
+            System.out.println("Erro ao conectar: " + ex.getMessage());
+            System.out.println("Erro na sintaxe: " + ex.getErrorCode());
+
             return false;
-        }  finally {
+        } finally {
             try {
-                if (prep != null) prep.close();
-                if (conn != null) conecta.desconectar();
+                if (prep != null) {
+                    prep.close();
+                }
+                if (conn != null) {
+                    conecta.desconectar();
+                }
             } catch (SQLException ex) {
                 System.out.println("Erro ao fechar recursos: " + ex.getMessage());
             }
         }
-        
+
     }
-    
-    public ArrayList<ProdutosDTO> listarProdutos(){
-        
+
+    public ArrayList<ProdutosDTO> listarProdutos() {
+
         ArrayList<ProdutosDTO> listagem = new ArrayList<>();
         conectaDAO conecta = new conectaDAO();
         Connection conn = conecta.connectDB();
@@ -70,18 +72,51 @@ public class ProdutosDAO {
             System.out.println("Erro ao listar produtos: " + ex.getMessage());
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (prep != null) prep.close();
-                if (conn != null) conecta.desconectar();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (prep != null) {
+                    prep.close();
+                }
+                if (conn != null) {
+                    conecta.desconectar();
+                }
             } catch (SQLException ex) {
                 System.out.println("Erro ao fechar recursos: " + ex.getMessage());
             }
         }
         return listagem;
     }
-    
-    
-    
-        
-}
 
+    public boolean venderProduto(int produtoId) {
+        conectaDAO conecta = new conectaDAO();
+        Connection conn = conecta.connectDB();
+        PreparedStatement prep = null;
+
+        try {
+            // Comando SQL para atualizar o status do produto
+            String sql = "UPDATE produtos SET status = ? WHERE id = ?";
+            prep = conn.prepareStatement(sql);
+            prep.setString(1, "Vendido"); // Define o novo status
+            prep.setInt(2, produtoId);    // Define o ID do produto a ser atualizado
+
+            int rowsAffected = prep.executeUpdate();
+            return rowsAffected > 0; // Retorna true se o produto foi atualizado
+        } catch (SQLException ex) {
+            System.out.println("Erro ao vender o produto: " + ex.getMessage());
+            return false;
+        } finally {
+            try {
+                if (prep != null) {
+                    prep.close();
+                }
+                if (conn != null) {
+                    conecta.desconectar();
+                }
+            } catch (SQLException ex) {
+                System.out.println("Erro ao fechar recursos: " + ex.getMessage());
+            }
+        }
+    }
+
+}
